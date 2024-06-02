@@ -1,0 +1,101 @@
+﻿@model AssingnmentRegistration.Models.UserInfo
+<h2>Deposit Withdrawl</h2>
+
+@using (Html.BeginForm("UserData", "Deposit", FormMethod.Post))
+{
+    @Html.AntiForgeryToken()
+
+    <div class="form-horizontal">
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        <table>
+            <tr>
+                <td>
+                    @Html.Label("Enter Customer Name", htmlAttributes: new { @class = "control-label col-md-2" })
+                </td>
+                <td>
+                    @Html.EditorFor(model => model.CustomerName, new { htmlAttributes = new { @class = "form-control" } })
+                    @Html.ValidationMessageFor(model => model.CustomerName, "", new { @class = "text-danger" })
+                </td>
+                <td>
+                    <input type="submit" value="Get Data" class="btn btn-default" />
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    @Html.Label("Current Balance", htmlAttributes: new { @class = "control-label col-md-2" })
+                </td>
+                <td>
+                    @Html.TextBox("Current Balance", (string)ViewBag.CurrentBalance,
+                   htmlAttributes: new { @class = "control-label col-md-2", @readonly = "readonly", @id = "CurrentBalance" })
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    @Html.Label("Enter Transaction Amount", htmlAttributes: new { @class = "control-label col-md-2" })
+                </td>
+                <td>
+                    @Html.TextBox("TransAmount", "", htmlAttributes: new { @class = "form-control" })
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    @Html.Label("Select Transaction Mode", htmlAttributes: new { @class = "control-label col-md-2" })
+                </td>
+                <td>
+                    @Html.RadioButton("TransactionMode", "Deposit", new { @id = "Deposit" }) Deposit
+
+                    @Html.RadioButton("TransactionMode", "Withdrawl", new { @id = "Withdrawl" }) Withdrawl
+                </td>
+            </tr>
+            <tr>
+                <td></td>
+                <td>
+                    <input type="submit" value="Calculate" class="btn btn-default" onclick="calculateNetBalance(event)" />
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    @Html.Label("Net Balance Is", htmlAttributes: new { @class = "control-label col-md-2" })
+                </td>
+                <td>
+                    @Html.TextBox("NetBalance", "", new { @class = "form-control", @readonly = "readonly" })
+                </td>
+            </tr>
+        </table>
+        <table>
+            <tr>
+                <td>
+                    <span id="Error" style="color:red;"></span>
+                </td>
+            </tr>
+        </table>
+    </div>
+}
+
+<div>
+    @Html.ActionLink("Refresh", "Index")
+</div>
+<script>
+    function calculateNetBalance(event) {
+        event.preventDefault();
+        var currentBalance = parseFloat(document.getElementById("CurrentBalance").value);
+        var transAmount = parseFloat(document.getElementById("TransAmount").value);
+        var netBalance = currentBalance;
+        if (document.getElementById("Deposit").checked) {
+            netBalance += transAmount;
+        }
+        else if (document.getElementById("Withdrawl").checked)
+        {
+            if (transAmount < currentBalance)
+            {
+                document.getElementById("Error").innerText = "";
+                netBalance -= transAmount;
+            }
+            else {
+                netBalance = 0;
+                document.getElementById("Error").innerText = "Transaction amount < Current Balance on Withdrawl";
+            }
+        }
+        document.getElementById("NetBalance").value = netBalance.toFixed(2);
+    }
+</script>
